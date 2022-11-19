@@ -1,4 +1,4 @@
-import { dbQuery } from "../services/db"
+import { dbQuery, dbQueryFirst } from "../services/db"
 
 export type Product = {
     id: number;
@@ -6,12 +6,34 @@ export type Product = {
     price: number;
 }
 
-const insertProduct = async (product: Product) => {
+const insertProduct = async (product: Product) => { // informa se vai passar algum parametro
     await dbQuery('INSERT INTO product (name, price) VALUES(?,?)', [product.name, product.price])
     let retorno = await dbQuery(`SELECT seq AS Id FROM sqlite_sequence WHERE name = 'product'`);
-    return retorno [0].Id as number | undefined;
+    return getProduct(retorno[0].Id);
 }
 
+const listProducts = async () => {
+    const retorno = await dbQuery('SELECT * FROM product');
+    return retorno as Product[];
+}
+
+const getProduct = async (id: number) => {
+    const retorno = await dbQueryFirst('SELECT * FROM product WHERE id = ?', [id]);
+    return retorno as Product | undefined;
+}
+
+const updateProduct = async (product: Product) => { // informa se vai passar algum parametro
+    await dbQuery('UPDATE product SET name = ?, price = ? WHERE id = ?', [product.name, product.price, product.id])
+    return getProduct(product.id);
+}
+
+const deleteProduct = async (id: number) => {
+    await dbQueryFirst('DELETE FROM product WHERE id = ?', [id]);
+}
 export const productModel = {
-    insertProduct
+    insertProduct,
+    listProducts,
+    getProduct,
+    deleteProduct,
+    updateProduct
 }

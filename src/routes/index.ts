@@ -1,7 +1,6 @@
 import { Application, Router } from "express";
 import { productRouter } from "./products";
 
-
 export const useRoutes = (app: Application) => {
     const apiRouter = Router();
     apiRouter.use('/products', productRouter);
